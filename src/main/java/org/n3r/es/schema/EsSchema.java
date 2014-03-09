@@ -2,7 +2,7 @@ package org.n3r.es.schema;
 
 public class EsSchema {
 
-    private String[] indexs;
+    private String[] indexes;
 
     private String type;
 
@@ -14,18 +14,18 @@ public class EsSchema {
         this(new String[] { index }, type, source);
     }
 
-    public EsSchema(String[] indexs, String type, String source) {
-        this.indexs = indexs;
+    public EsSchema(String[] indexes, String type, String source) {
+        this.indexes = indexes;
         this.type = type;
         this.source = source;
     }
 
-    public String[] getIndexs() {
-        return indexs;
+    public String[] getIndexes() {
+        return indexes;
     }
 
-    public void setIndexs(String[] indexs) {
-        this.indexs = indexs;
+    public void setIndexes(String... indexes) {
+        this.indexes = indexes;
     }
 
     public String getType() {

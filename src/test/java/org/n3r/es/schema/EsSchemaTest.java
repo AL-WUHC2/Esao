@@ -1,6 +1,7 @@
 package org.n3r.es.schema;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -12,7 +13,7 @@ public class EsSchemaTest {
     @Test
     public void testSimpleBean() throws Exception {
         EsSchema schema = new EsSchemaBuilder(SimpleBean.class).schema();
-        assertEquals(SimpleBean.class.getSimpleName(), schema.getIndexs()[0]);
+        assertEquals(SimpleBean.class.getSimpleName(), schema.getIndexes()[0]);
         assertEquals(SimpleBean.class.getCanonicalName(), schema.getType());
 
         XContentBuilder mapping = XContentFactory.jsonBuilder()
@@ -30,8 +31,8 @@ public class EsSchemaTest {
     @Test
     public void testSimpleAnnoBean() throws Exception {
         EsSchema schema = new EsSchemaBuilder(SimpleAnnoBean.class).schema();
-        assertEquals("simple", schema.getIndexs()[0]);
-        assertEquals("anno", schema.getIndexs()[1]);
+        assertEquals("simple", schema.getIndexes()[0]);
+        assertEquals("anno", schema.getIndexes()[1]);
         assertEquals("simpleType", schema.getType());
 
         XContentBuilder mapping = XContentFactory.jsonBuilder()
@@ -56,7 +57,7 @@ public class EsSchemaTest {
     @Test
     public void testNestedBean() throws Exception {
         EsSchema schema = new EsSchemaBuilder(NestedBean.class).schema();
-        assertEquals("Nested", schema.getIndexs()[0]);
+        assertEquals("Nested", schema.getIndexes()[0]);
         assertEquals("NestedBean", schema.getType());
 
         XContentBuilder mapping = XContentFactory.jsonBuilder()
@@ -85,6 +86,13 @@ public class EsSchemaTest {
                 .endObject()
                 .endObject();
         assertEquals(mapping.string(), schema.getSource());
+    }
+
+    @Test
+    public void testCache() {
+        EsSchema schema = new EsSchemaBuilder(SimpleBean.class).schema();
+        EsSchema schema2 = new EsSchemaBuilder(SimpleBean.class).schema();
+        assertSame(schema, schema2);
     }
 
 }

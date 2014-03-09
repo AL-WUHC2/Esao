@@ -5,11 +5,9 @@ import java.util.Map;
 
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.n3r.core.collection.RMap;
 import org.n3r.es.exception.EsaoRuntimeException;
 import org.n3r.es.schema.EsSchema;
-
-import com.alibaba.fastjson.JSON;
+import org.n3r.es.schema.EsSchemaCache;
 
 public class EsSchemaBuilder {
 
@@ -23,24 +21,24 @@ public class EsSchemaBuilder {
         schema = new EsSchema(index, type, source);
     }
 
-    public EsSchemaBuilder(String[] indexs, String type, String source) {
-        schema = new EsSchema(indexs, type, source);
+    public EsSchemaBuilder(String[] indexes, String type, String source) {
+        schema = new EsSchema(indexes, type, source);
     }
 
     public EsSchemaBuilder(Class<?> clazz) {
         this.schema(clazz);
     }
 
-    public String[] indexs() {
-        return schema.getIndexs();
+    public String[] indexes() {
+        return schema.getIndexes();
     }
 
-    public EsSchemaBuilder index(String index) {
-        return indexs(new String[] { index });
+    public EsSchemaBuilder indexes(String index) {
+        return indexes(new String[] { index });
     }
 
-    public EsSchemaBuilder indexs(String[] indexs) {
-        schema.setIndexs(indexs);
+    public EsSchemaBuilder indexes(String... indexes) {
+        schema.setIndexes(indexes);
         return this;
     }
 
@@ -85,13 +83,7 @@ public class EsSchemaBuilder {
     }
 
     public EsSchemaBuilder schema(Class<?> clazz) {
-        String[] indexNames = new EsIndexNameBuilder(clazz).indexNames();
-        String typeName = new EsTypeNameBuilder(clazz).typeName();
-        Map<String, Object> typeMapping = RMap.<String, Object>of(
-                "properties", new EsClassPropsBuilder(clazz).props(),
-                "_id", new EsIdSettingBuilder(clazz).setting());
-        String source = JSON.toJSONString(RMap.<String, Object>of(typeName, typeMapping));
-        schema = new EsSchema(indexNames, typeName, source);
+        schema = EsSchemaCache.get(clazz);
         return this;
     }
 
