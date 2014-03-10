@@ -15,7 +15,7 @@ import org.n3r.es.annotation.EsTypeName;
 import org.n3r.es.enums.EsFieldType;
 import org.n3r.es.enums.EsIndexType;
 
-@EsIndexName( { "simple", "anno" } )
+@EsIndexName("simple")
 @EsTypeName("simpleType")
 @EsIdSetting(index = EsIndexType.NOT_ANALYZED, store = true)
 public class SimpleAnnoBean {

@@ -13,7 +13,7 @@ public class EsSchemaTest {
     @Test
     public void testSimpleBean() throws Exception {
         EsSchema schema = new EsSchemaBuilder(SimpleBean.class).schema();
-        assertEquals(SimpleBean.class.getSimpleName(), schema.getIndexes()[0]);
+        assertEquals(SimpleBean.class.getSimpleName(), schema.getIndex());
         assertEquals(SimpleBean.class.getCanonicalName(), schema.getType());
 
         XContentBuilder mapping = XContentFactory.jsonBuilder()
@@ -31,8 +31,7 @@ public class EsSchemaTest {
     @Test
     public void testSimpleAnnoBean() throws Exception {
         EsSchema schema = new EsSchemaBuilder(SimpleAnnoBean.class).schema();
-        assertEquals("simple", schema.getIndexes()[0]);
-        assertEquals("anno", schema.getIndexes()[1]);
+        assertEquals("simple", schema.getIndex());
         assertEquals("simpleType", schema.getType());
 
         XContentBuilder mapping = XContentFactory.jsonBuilder()
@@ -57,7 +56,7 @@ public class EsSchemaTest {
     @Test
     public void testNestedBean() throws Exception {
         EsSchema schema = new EsSchemaBuilder(NestedBean.class).schema();
-        assertEquals("Nested", schema.getIndexes()[0]);
+        assertEquals("Nested", schema.getIndex());
         assertEquals("NestedBean", schema.getType());
 
         XContentBuilder mapping = XContentFactory.jsonBuilder()

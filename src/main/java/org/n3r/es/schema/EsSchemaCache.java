@@ -22,13 +22,13 @@ public class EsSchemaCache {
                 new CacheLoader<Class<?>, EsSchema>() {
                     @Override
                     public EsSchema load(Class<?> key) throws Exception {
-                        String[] indexNames = new EsIndexNameBuilder(key).indexNames();
+                        String indexName = new EsIndexNameBuilder(key).indexName();
                         String typeName = new EsTypeNameBuilder(key).typeName();
                         Map<String, Object> typeMapping = RMap.<String, Object>of(
                                 "properties", new EsClassPropsBuilder(key).props(),
                                 "_id", new EsIdSettingBuilder(key).setting());
                         String source = JSON.toJSONString(RMap.<String, Object>of(typeName, typeMapping));
-                        return new EsSchema(indexNames, typeName, source);
+                        return new EsSchema(indexName, typeName, source);
                     }
                 }
         );

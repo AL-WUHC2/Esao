@@ -21,24 +21,16 @@ public class EsSchemaBuilder {
         schema = new EsSchema(index, type, source);
     }
 
-    public EsSchemaBuilder(String[] indexes, String type, String source) {
-        schema = new EsSchema(indexes, type, source);
-    }
-
     public EsSchemaBuilder(Class<?> clazz) {
         this.schema(clazz);
     }
 
-    public String[] indexes() {
-        return schema.getIndexes();
+    public String index() {
+        return schema.getIndex();
     }
 
-    public EsSchemaBuilder indexes(String index) {
-        return indexes(new String[] { index });
-    }
-
-    public EsSchemaBuilder indexes(String... indexes) {
-        schema.setIndexes(indexes);
+    public EsSchemaBuilder index(String index) {
+        schema.setIndex(index);
         return this;
     }
 
