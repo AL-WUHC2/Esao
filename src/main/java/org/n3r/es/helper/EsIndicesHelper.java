@@ -30,6 +30,10 @@ public class EsIndicesHelper {
         return indicesExists(schema.getIndexes());
     }
 
+    public IndicesExistsRequestBuilder prepareExists(EsSchema schema) {
+        return prepareExists(schema.getIndexes());
+    }
+
     /**
      * return true if all of the indexes were exists
      */
@@ -45,6 +49,15 @@ public class EsIndicesHelper {
 
     public boolean createIndex(EsSchema schema) {
         return createIndex(schema.getIndexes());
+    }
+
+    public CreateIndexRequestBuilder[] prepareCreateIndex(EsSchema schema) {
+        String[] indexes = schema.getIndexes();
+        CreateIndexRequestBuilder[] result = new CreateIndexRequestBuilder[indexes.length];
+        for (int i = 0; i < indexes.length; i++) {
+            result[i] = prepareCreateIndex(indexes[i]);
+        }
+        return result;
     }
 
     public boolean createIndex(String... indexes) {
@@ -73,6 +86,10 @@ public class EsIndicesHelper {
         return deleteIndex(schema.getIndexes());
     }
 
+    public DeleteIndexRequestBuilder prepareDeleteIndex(EsSchema schema) {
+        return prepareDeleteIndex(schema.getIndexes());
+    }
+
     public boolean deleteIndex(String... indexes) {
         boolean result = true;
         for (String index : indexes) {
@@ -99,6 +116,10 @@ public class EsIndicesHelper {
         return typeExists(schema.getIndexes(), schema.getType());
     }
 
+    public TypesExistsRequestBuilder prepareTypeExists(EsSchema schema) {
+        return prepareTypeExists(schema.getIndexes(), schema.getType());
+    }
+
     public boolean typeExists(String[] indexes, String type) {
         return indicesExists(indexes) && typeExistsNoCheck(indexes, type);
     }
@@ -123,6 +144,10 @@ public class EsIndicesHelper {
 
     public boolean putMapping(EsSchema schema) {
         return putMapping(schema.getIndexes(), schema.getType(), schema.getSource());
+    }
+
+    public PutMappingRequestBuilder preparePutMapping(EsSchema schema) {
+        return preparePutMapping(schema.getIndexes(), schema.getType(), schema.getSource());
     }
 
     public boolean putMapping(String[] indexes, String type, String source) {
@@ -153,6 +178,10 @@ public class EsIndicesHelper {
         return deleteMapping(schema.getIndexes(), schema.getType());
     }
 
+    public DeleteMappingRequestBuilder prepareDeleteMapping(EsSchema schema) {
+        return prepareDeleteMapping(schema.getIndexes(), schema.getType());
+    }
+
     public boolean deleteMapping(String[] indexes, String type) {
         boolean result = true;
         for (String index : indexes) {
@@ -179,6 +208,10 @@ public class EsIndicesHelper {
 
     public Map<String, Map<String, Object>> getMapping(EsSchema schema) {
         return getMapping(schema.getIndexes(), schema.getType());
+    }
+
+    public GetMappingsRequestBuilder prepareGetMapping(EsSchema schema) {
+        return prepareGetMapping(schema.getIndexes(), schema.getType());
     }
 
     public Map<String, Map<String, Object>> getMapping(String[] indexes, String type) {
