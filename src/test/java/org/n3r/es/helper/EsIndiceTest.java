@@ -1,8 +1,12 @@
 package org.n3r.es.helper;
 
 import static org.elasticsearch.common.settings.ImmutableSettings.settingsBuilder;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.n3r.core.collection.RMap.of;
+
+import java.util.Map;
 
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -12,6 +16,7 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.n3r.core.collection.RMap;
 
 public class EsIndiceTest {
 
@@ -50,15 +55,14 @@ public class EsIndiceTest {
         assertFalse(indicesHelper.typeExists("noneIndex", "noneType"));
         assertTrue(indicesHelper.deleteMapping("noneIndex", "noneType"));
 
+        Map<String, Object> properties = RMap.<String, Object>of("properties", of("noneField", of("type", "string")));
         XContentBuilder noneType = XContentFactory.jsonBuilder()
                 .startObject()
-                .startObject("noneType")
-                .startObject("properties")
-                .startObject("noneField").field("type", "string").endObject()
-                .endObject()
-                .endObject()
+                .field("noneType", properties)
                 .endObject();
         assertTrue(indicesHelper.putMapping("noneIndex", "noneType", noneType.string()));
+        assertEquals(properties, indicesHelper.getMapping("noneIndex", "noneType"));
+
         assertTrue(indicesHelper.typeExists("noneIndex", "noneType"));
         assertTrue(indicesHelper.putMapping("noneIndex", "noneType", noneType.string()));
 

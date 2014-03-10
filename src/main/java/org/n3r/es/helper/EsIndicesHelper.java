@@ -6,9 +6,15 @@ import static org.elasticsearch.client.Requests.deleteMappingRequest;
 import static org.elasticsearch.client.Requests.indicesExistsRequest;
 import static org.elasticsearch.client.Requests.putMappingRequest;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.client.transport.TransportClient;
+import org.n3r.es.exception.EsaoRuntimeException;
 import org.n3r.es.schema.EsSchema;
 
 public class EsIndicesHelper {
@@ -157,6 +163,36 @@ public class EsIndicesHelper {
     }
 
 ////Get Mapping/////////////////////////////////////////////////////////////////
+
+    public Map<String, Map<String, Object>> getMapping(EsSchema schema) {
+        return getMapping(schema.getIndexes(), schema.getType());
+    }
+
+    public Map<String, Map<String, Object>> getMapping(String[] indexes, String type) {
+        Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
+        for (String index : indexes) {
+            result.put(index, getMapping(index, type));
+        }
+        return result;
+    }
+
+    public Map<String, Object> getMapping(String index, String type) {
+        if (!indicesExists(index)) return null;
+        if (!typeExistsNoCheck(index, type)) return null;
+        return getMappingNoCheck(index, type);
+    }
+
+    private Map<String, Object> getMappingNoCheck(String index, String type) {
+        try {
+            String indexLower = indexToLower(index);
+            return client.getMappings(new GetMappingsRequest()
+                    .indices(indexLower).types(type)).actionGet()
+                    .getMappings().get(indexLower).get(type).sourceAsMap();
+        } catch (IOException e) {
+            throw new EsaoRuntimeException("GetMapping for index:"
+                    + index + " type:" + type + " Exception!", e);
+        }
+    }
 
 ////Private Utils///////////////////////////////////////////////////////////////
 
