@@ -1,17 +1,16 @@
 package org.n3r.es.helper;
 
-import static org.elasticsearch.client.Requests.createIndexRequest;
-import static org.elasticsearch.client.Requests.deleteIndexRequest;
-import static org.elasticsearch.client.Requests.deleteMappingRequest;
-import static org.elasticsearch.client.Requests.indicesExistsRequest;
-import static org.elasticsearch.client.Requests.putMappingRequest;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequestBuilder;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
+import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequestBuilder;
+import org.elasticsearch.action.admin.indices.mapping.delete.DeleteMappingRequestBuilder;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequestBuilder;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequestBuilder;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.client.transport.TransportClient;
 import org.n3r.es.exception.EsaoRuntimeException;
@@ -35,13 +34,11 @@ public class EsIndicesHelper {
      * return true if all of the indexes were exists
      */
     public boolean indicesExists(String... indexes) {
-        return client.exists(indicesExistsRequest(indexToLower(indexes)))
-                .actionGet().isExists();
+        return prepareExists(indexes).execute().actionGet().isExists();
     }
 
-    public boolean indicesExists(String index) {
-        return client.exists(indicesExistsRequest(indexToLower(index)))
-                .actionGet().isExists();
+    public IndicesExistsRequestBuilder prepareExists(String... indexes) {
+        return client.prepareExists(indexToLower(indexes));
     }
 
 ////Create Index////////////////////////////////////////////////////////////////
@@ -63,8 +60,11 @@ public class EsIndicesHelper {
     }
 
     private boolean createIndexNoCheck(String index) {
-        return client.create(createIndexRequest(indexToLower(index)))
-                .actionGet().isAcknowledged();
+        return prepareCreateIndex(index).execute().actionGet().isAcknowledged();
+    }
+
+    public CreateIndexRequestBuilder prepareCreateIndex(String index) {
+        return client.prepareCreate(indexToLower(index));
     }
 
 ////Delete Index////////////////////////////////////////////////////////////////
@@ -86,8 +86,11 @@ public class EsIndicesHelper {
     }
 
     private boolean deleteIndexNoCheck(String index) {
-        return client.delete(deleteIndexRequest(indexToLower(index)))
-                .actionGet().isAcknowledged();
+        return prepareDeleteIndex(index).execute().actionGet().isAcknowledged();
+    }
+
+    public DeleteIndexRequestBuilder prepareDeleteIndex(String... indexes) {
+        return client.prepareDelete(indexToLower(indexes));
     }
 
 ////Types Exists////////////////////////////////////////////////////////////////
@@ -104,14 +107,16 @@ public class EsIndicesHelper {
         return indicesExists(index) && typeExistsNoCheck(index, type);
     }
 
-    private boolean typeExistsNoCheck(String[] indexes, String type) {
-        return client.typesExists(new TypesExistsRequest(indexToLower(indexes),
-                type)).actionGet().isExists();
+    private boolean typeExistsNoCheck(String[] indexes, String... types) {
+        return prepareTypeExists(indexes, types).execute().actionGet().isExists();
     }
 
-    private boolean typeExistsNoCheck(String index, String type) {
-        return client.typesExists(new TypesExistsRequest(new String[]{indexToLower(index)},
-                type)).actionGet().isExists();
+    private boolean typeExistsNoCheck(String index, String... types) {
+        return prepareTypeExists(new String[]{index}, types).execute().actionGet().isExists();
+    }
+
+    public TypesExistsRequestBuilder prepareTypeExists(String[] indexes, String... types) {
+        return client.prepareTypesExists(indexToLower(indexes)).setTypes(types);
     }
 
 ////Put Mapping/////////////////////////////////////////////////////////////////
@@ -134,8 +139,12 @@ public class EsIndicesHelper {
     }
 
     private boolean putMappingNoCheck(String index, String type, String source) {
-        return client.putMapping(putMappingRequest(indexToLower(index))
-                .type(type).source(source)).actionGet().isAcknowledged();
+        return preparePutMapping(new String[]{index}, type, source)
+                .execute().actionGet().isAcknowledged();
+    }
+
+    public PutMappingRequestBuilder preparePutMapping(String[] indexes, String type, String source) {
+        return client.preparePutMapping(indexToLower(indexes)).setType(type).setSource(source);
     }
 
 ////Delete Mapping//////////////////////////////////////////////////////////////
@@ -158,8 +167,12 @@ public class EsIndicesHelper {
     }
 
     private boolean deleteMappingNoCheck(String index, String type) {
-        return client.deleteMapping(deleteMappingRequest(indexToLower(index))
-                .types(type)).actionGet().isAcknowledged();
+        return prepareDeleteMapping(new String[]{index}, type)
+                .execute().actionGet().isAcknowledged();
+    }
+
+    public DeleteMappingRequestBuilder prepareDeleteMapping(String[] indexes, String... types) {
+        return client.prepareDeleteMapping(indexToLower(indexes)).setType(types);
     }
 
 ////Get Mapping/////////////////////////////////////////////////////////////////
@@ -184,14 +197,17 @@ public class EsIndicesHelper {
 
     private Map<String, Object> getMappingNoCheck(String index, String type) {
         try {
-            String indexLower = indexToLower(index);
-            return client.getMappings(new GetMappingsRequest()
-                    .indices(indexLower).types(type)).actionGet()
-                    .getMappings().get(indexLower).get(type).sourceAsMap();
+            return prepareGetMapping(new String[]{index}, type)
+                    .execute().actionGet().getMappings()
+                    .get(indexToLower(index)).get(type).sourceAsMap();
         } catch (IOException e) {
             throw new EsaoRuntimeException("GetMapping for index:"
                     + index + " type:" + type + " Exception!", e);
         }
+    }
+
+    public GetMappingsRequestBuilder prepareGetMapping(String[] indexes, String... types) {
+        return client.prepareGetMappings(indexToLower(indexes)).setTypes(types);
     }
 
 ////Private Utils///////////////////////////////////////////////////////////////
