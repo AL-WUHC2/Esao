@@ -1,5 +1,7 @@
 package org.n3r.es.schema;
 
+import static org.n3r.core.collection.RMap.newHashMap;
+
 import java.util.Map;
 
 import org.n3r.core.collection.RMap;
@@ -17,6 +19,8 @@ public class EsSchemaCache {
 
     private static LoadingCache<Class<?>, EsSchema> schemaCache;
 
+    private static Map<String, Class<?>> reflectMap = newHashMap();
+
     static {
         schemaCache = CacheBuilder.newBuilder().maximumSize(1000).build(
                 new CacheLoader<Class<?>, EsSchema>() {
@@ -24,6 +28,8 @@ public class EsSchemaCache {
                     public EsSchema load(Class<?> key) throws Exception {
                         String indexName = new EsIndexNameBuilder(key).indexName();
                         String typeName = new EsTypeNameBuilder(key).typeName();
+                        reflectMap.put(indexName.toLowerCase() + ":" + typeName, key);
+
                         Map<String, Object> typeMapping = RMap.<String, Object>of(
                                 "properties", new EsClassPropsBuilder(key).props(),
                                 "_id", new EsIdSettingBuilder(key).setting());
@@ -36,6 +42,10 @@ public class EsSchemaCache {
 
     public static EsSchema get(Class<?> clazz) {
         return schemaCache.getUnchecked(clazz);
+    }
+
+    public static Class<?> reflect(String reflectKey) {
+        return reflectMap.get(reflectKey);
     }
 
 }

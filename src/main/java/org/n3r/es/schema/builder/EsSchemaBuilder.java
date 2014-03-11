@@ -25,6 +25,10 @@ public class EsSchemaBuilder {
         this.schema(clazz);
     }
 
+    public EsSchemaBuilder(Object object) {
+        this.schema(object);
+    }
+
     public String index() {
         return schema.getIndex();
     }

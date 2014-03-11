@@ -14,6 +14,7 @@ import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.client.transport.TransportClient;
 import org.n3r.es.exception.EsaoRuntimeException;
 import org.n3r.es.schema.EsSchema;
+import org.n3r.es.schema.builder.EsSchemaBuilder;
 
 public class EsIndicesHelper {
 
@@ -25,32 +26,36 @@ public class EsIndicesHelper {
 
 ////Indices Exists//////////////////////////////////////////////////////////////
 
-    public boolean indicesExists(EsSchema schema) {
+    public boolean indicesExists(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return indicesExists(schema.getIndex());
     }
 
-    public IndicesExistsRequestBuilder prepareExists(EsSchema schema) {
+    public IndicesExistsRequestBuilder prepareExists(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return prepareExists(schema.getIndex());
     }
 
     /**
      * return true if all of the indexes were exists
      */
-    public boolean indicesExists(String index) {
-        return prepareExists(index).execute().actionGet().isExists();
+    public boolean indicesExists(String... indexes) {
+        return prepareExists(indexes).execute().actionGet().isExists();
     }
 
-    public IndicesExistsRequestBuilder prepareExists(String index) {
-        return client.prepareExists(index.toLowerCase());
+    public IndicesExistsRequestBuilder prepareExists(String... indexes) {
+        return client.prepareExists(lowerCase(indexes));
     }
 
 ////Create Index////////////////////////////////////////////////////////////////
 
-    public boolean createIndex(EsSchema schema) {
+    public boolean createIndex(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return createIndex(schema.getIndex());
     }
 
-    public CreateIndexRequestBuilder prepareCreateIndex(EsSchema schema) {
+    public CreateIndexRequestBuilder prepareCreateIndex(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return prepareCreateIndex(schema.getIndex());
     }
 
@@ -68,12 +73,22 @@ public class EsIndicesHelper {
 
 ////Delete Index////////////////////////////////////////////////////////////////
 
-    public boolean deleteIndex(EsSchema schema) {
+    public boolean deleteIndex(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return deleteIndex(schema.getIndex());
     }
 
-    public DeleteIndexRequestBuilder prepareDeleteIndex(EsSchema schema) {
+    public DeleteIndexRequestBuilder prepareDeleteIndex(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return prepareDeleteIndex(schema.getIndex());
+    }
+
+    public boolean deleteIndex(String... indexes) {
+        boolean result = true;
+        for (String index : indexes) {
+            result &= deleteIndex(index);
+        }
+        return result;
     }
 
     public boolean deleteIndex(String index) {
@@ -84,17 +99,19 @@ public class EsIndicesHelper {
         return prepareDeleteIndex(index).execute().actionGet().isAcknowledged();
     }
 
-    public DeleteIndexRequestBuilder prepareDeleteIndex(String index) {
-        return client.prepareDelete(index.toLowerCase());
+    public DeleteIndexRequestBuilder prepareDeleteIndex(String... indexes) {
+        return client.prepareDelete(lowerCase(indexes));
     }
 
 ////Types Exists////////////////////////////////////////////////////////////////
 
-    public boolean typeExists(EsSchema schema) {
+    public boolean typeExists(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return typeExists(schema.getIndex(), schema.getType());
     }
 
-    public TypesExistsRequestBuilder prepareTypeExists(EsSchema schema) {
+    public TypesExistsRequestBuilder prepareTypeExists(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return prepareTypeExists(schema.getIndex(), schema.getType());
     }
 
@@ -112,11 +129,13 @@ public class EsIndicesHelper {
 
 ////Put Mapping/////////////////////////////////////////////////////////////////
 
-    public boolean putMapping(EsSchema schema) {
+    public boolean putMapping(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return putMapping(schema.getIndex(), schema.getType(), schema.getSource());
     }
 
-    public PutMappingRequestBuilder preparePutMapping(EsSchema schema) {
+    public PutMappingRequestBuilder preparePutMapping(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return preparePutMapping(schema.getIndex(), schema.getType(), schema.getSource());
     }
 
@@ -135,11 +154,13 @@ public class EsIndicesHelper {
 
 ////Delete Mapping//////////////////////////////////////////////////////////////
 
-    public boolean deleteMapping(EsSchema schema) {
+    public boolean deleteMapping(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return deleteMapping(schema.getIndex(), schema.getType());
     }
 
-    public DeleteMappingRequestBuilder prepareDeleteMapping(EsSchema schema) {
+    public DeleteMappingRequestBuilder prepareDeleteMapping(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return prepareDeleteMapping(schema.getIndex(), schema.getType());
     }
 
@@ -158,11 +179,13 @@ public class EsIndicesHelper {
 
 ////Get Mapping/////////////////////////////////////////////////////////////////
 
-    public Map<String, Object> getMapping(EsSchema schema) {
+    public Map<String, Object> getMapping(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return getMapping(schema.getIndex(), schema.getType());
     }
 
-    public GetMappingsRequestBuilder prepareGetMapping(EsSchema schema) {
+    public GetMappingsRequestBuilder prepareGetMapping(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return prepareGetMapping(schema.getIndex(), schema.getType());
     }
 
@@ -184,6 +207,18 @@ public class EsIndicesHelper {
 
     public GetMappingsRequestBuilder prepareGetMapping(String index, String type) {
         return client.prepareGetMappings(index.toLowerCase()).setTypes(type);
+    }
+
+////Private/////////////////////////////////////////////////////////////////////
+
+    // Auto lower case indexName.
+    // ES is not accept indexNames with UPPERCASE.
+    private String[] lowerCase(String... strings) {
+        String[] result = new String[strings.length];
+        for (int i = 0; i < strings.length; i++) {
+            result[i] = strings[i].toLowerCase();
+        }
+        return result;
     }
 
 }

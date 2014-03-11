@@ -30,9 +30,7 @@ public class EsIndiceTest {
         client = new TransportClient(settings);
         client.addTransportAddress(new InetSocketTransportAddress("127.0.0.1", 9300));
         indicesHelper = new EsIndicesHelper(client);
-        indicesHelper.deleteIndex("noneIndex");
-        indicesHelper.deleteIndex("test01");
-        indicesHelper.deleteIndex("test02");
+        indicesHelper.deleteIndex("noneIndex", "test01", "test02");
     }
 
     @AfterClass
@@ -46,13 +44,10 @@ public class EsIndiceTest {
 
         assertTrue(indicesHelper.createIndex("test01"));
         assertTrue(indicesHelper.createIndex("test02"));
-        assertTrue(indicesHelper.indicesExists("test01"));
-        assertTrue(indicesHelper.indicesExists("test02"));
+        assertTrue(indicesHelper.indicesExists("test01", "test02"));
 
-        assertTrue(indicesHelper.deleteIndex("test01"));
-        assertTrue(indicesHelper.deleteIndex("test02"));
-        assertFalse(indicesHelper.indicesExists("test01"));
-        assertFalse(indicesHelper.indicesExists("test02"));
+        assertTrue(indicesHelper.deleteIndex("test01", "test02"));
+        assertFalse(indicesHelper.indicesExists("test01", "test02"));
     }
 
     @Test
