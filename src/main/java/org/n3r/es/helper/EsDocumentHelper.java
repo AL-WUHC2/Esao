@@ -59,6 +59,8 @@ public class EsDocumentHelper {
         return prepareIndex(index, type, null, source);
     }
 
+    // If Mapping specify _id field to extract the id from a different location
+    // in the source document, @param id will cover it without change the source.
     public IndexRequestBuilder prepareIndex(String index, String type, String id, String source) {
         return client.prepareIndex(index, type, id).setSource(source.getBytes(UTF8));
     }
@@ -120,16 +122,8 @@ public class EsDocumentHelper {
         return prepareDelete(index, type, id).execute().actionGet();
     }
 
-    public DeleteResponse delete(String type, String id) {
-        return prepareDelete(type, id).execute().actionGet();
-    }
-
     public DeleteRequestBuilder prepareDelete(String index, String type, String id) {
-        return prepareDelete(type, id).setIndex(index);
-    }
-
-    public DeleteRequestBuilder prepareDelete(String type, String id) {
-        return client.prepareDelete().setType(type).setId(id);
+        return client.prepareDelete(index, type, id);
     }
 
 ////Update//////////////////////////////////////////////////////////////////////

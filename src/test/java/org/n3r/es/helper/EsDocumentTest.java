@@ -1,6 +1,8 @@
 package org.n3r.es.helper;
 
 import static org.elasticsearch.common.settings.ImmutableSettings.settingsBuilder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.elasticsearch.client.transport.TransportClient;
@@ -9,6 +11,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.n3r.core.collection.RMap;
 
 public class EsDocumentTest {
 
@@ -46,6 +49,30 @@ public class EsDocumentTest {
         Object getRaw = documentHelper.get("document", "docType", "1234");
         DocumentBean getResult = documentHelper.get(DocumentBean.class, "1234");
         assertTrue(getResult.equals(getRaw));
+
+        documentHelper.delete("document", "docType", "1234");
+        getRaw = documentHelper.get("document", "docType", "1234");
+        assertNull(getRaw);
+
+        documentHelper.index(obj1, "1235");
+        DocumentBean getResult1 = documentHelper.get(DocumentBean.class, "1234");
+        DocumentBean getResult2 = documentHelper.get(DocumentBean.class, "1235");
+        assertNull(getResult1);
+        assertTrue(obj1.equals(getResult2));
+
+        DocumentBean obj2 = new DocumentBean();
+        obj2.setDocId("1236");
+        obj2.setDocContent("ouyqegotuqbzdfa");
+        documentHelper.update(obj2, "1235");
+        getResult2 = documentHelper.get(DocumentBean.class, "1235");
+        assertEquals("1236", getResult2.getDocId());
+        assertEquals("ouyqegotuqbzdfa", getResult2.getDocContent());
+
+        documentHelper.update(DocumentBean.class, "1235",
+                RMap.of("docId", "1237", "docContent", "djashddassidhf"));
+        getResult2 = documentHelper.get(DocumentBean.class, "1235");
+        assertEquals("1237", getResult2.getDocId());
+        assertEquals("djashddassidhf", getResult2.getDocContent());
     }
 
 }
