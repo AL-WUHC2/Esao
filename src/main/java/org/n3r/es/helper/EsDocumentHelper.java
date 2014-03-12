@@ -107,6 +107,26 @@ public class EsDocumentHelper {
         return JSON.parseObject(source, reflectClazz);
     }
 
+////Exists//////////////////////////////////////////////////////////////////////
+
+    public boolean exists(Class<?> clazz, String id) {
+        return prepareExists(clazz, id).execute().actionGet().isExists();
+    }
+
+    public GetRequestBuilder prepareExists(Class<?> clazz, String id) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
+        return prepareExists(schema.getIndex(), schema.getType(), id);
+    }
+
+    public boolean exists(String index, String type, String id) {
+        return prepareExists(index, type, id).execute().actionGet().isExists();
+    }
+
+    // Get without source, just for check the document is exists or not.
+    public GetRequestBuilder prepareExists(String index, String type, String id) {
+        return prepareGet(index, type, id).setFetchSource(false);
+    }
+
 ////Delete//////////////////////////////////////////////////////////////////////
 
     public DeleteResponse delete(Class<?> clazz, String id) {
@@ -141,7 +161,7 @@ public class EsDocumentHelper {
         return prepareUpdate(schema.getIndex(), schema.getType(), id, JSON.toJSONString(obj));
     }
 
-    private UpdateRequestBuilder prepareUpdate(Class<?> clazz, String id, Map source) {
+    public UpdateRequestBuilder prepareUpdate(Class<?> clazz, String id, Map source) {
         EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return prepareUpdate(schema.getIndex(), schema.getType(), id, JSON.toJSONString(source));
     }

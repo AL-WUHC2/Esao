@@ -2,6 +2,7 @@ package org.n3r.es.helper;
 
 import static org.elasticsearch.common.settings.ImmutableSettings.settingsBuilder;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -46,6 +47,8 @@ public class EsDocumentTest {
         obj1.setDocId("1234");
         obj1.setDocContent("djashddassidhf");
         documentHelper.index(obj1);
+        assertTrue(documentHelper.exists(DocumentBean.class, "1234"));
+
         Object getRaw = documentHelper.get("document", "docType", "1234");
         DocumentBean getResult = documentHelper.get(DocumentBean.class, "1234");
         assertTrue(getResult.equals(getRaw));
@@ -73,6 +76,9 @@ public class EsDocumentTest {
         getResult2 = documentHelper.get(DocumentBean.class, "1235");
         assertEquals("1237", getResult2.getDocId());
         assertEquals("djashddassidhf", getResult2.getDocContent());
+
+        documentHelper.delete(DocumentBean.class, "1235");
+        assertFalse(documentHelper.exists(DocumentBean.class, "1235"));
     }
 
 }
