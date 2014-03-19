@@ -17,8 +17,8 @@ public class EsSchemaBuilder {
         schema = new EsSchema();
     }
 
-    public EsSchemaBuilder(String index, String type, String source) {
-        schema = new EsSchema(index, type, source);
+    public EsSchemaBuilder(String index, String type, String source, String idFieldPath) {
+        schema = new EsSchema(index, type, source, idFieldPath);
     }
 
     public EsSchemaBuilder(Class<?> clazz) {

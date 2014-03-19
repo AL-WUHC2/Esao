@@ -1,5 +1,7 @@
 package org.n3r.es.schema.builder;
 
+import static org.n3r.core.collection.RMap.getStr;
+import static org.n3r.core.collection.RMap.isEmpty;
 import static org.n3r.core.lang.RClass.isBasicType;
 import static org.n3r.core.lang.RClass.isCollectionType;
 
@@ -7,7 +9,6 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.n3r.core.collection.RMap;
 import org.n3r.core.lang.RField;
 import org.n3r.es.annotation.EsIdField;
 import org.n3r.es.annotation.EsIdSetting;
@@ -28,7 +29,11 @@ public class EsIdSettingBuilder {
     }
 
     public Map<String, Object> setting() {
-        return RMap.isEmpty(idSetting) ? null : idSetting;
+        return isEmpty(idSetting) ? null : idSetting;
+    }
+
+    public String idFieldPath() {
+        return getStr(idSetting, "path");
     }
 
     private String buildIdFieldPath(Class<?> clazz) {

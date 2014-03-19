@@ -28,13 +28,14 @@ public class EsSchemaCache {
                     public EsSchema load(Class<?> key) throws Exception {
                         String indexName = new EsIndexNameBuilder(key).indexName();
                         String typeName = new EsTypeNameBuilder(key).typeName();
-                        reflectMap.put(indexName.toLowerCase() + ":" + typeName, key);
+                        reflectMap.put(indexName + ":" + typeName, key);
 
+                        EsIdSettingBuilder idSetting = new EsIdSettingBuilder(key);
                         Map<String, Object> typeMapping = RMap.<String, Object>of(
                                 "properties", new EsClassPropsBuilder(key).props(),
-                                "_id", new EsIdSettingBuilder(key).setting());
+                                "_id", idSetting.setting());
                         String source = JSON.toJSONString(RMap.<String, Object>of(typeName, typeMapping));
-                        return new EsSchema(indexName, typeName, source);
+                        return new EsSchema(indexName, typeName, source, idSetting.idFieldPath());
                     }
                 }
         );

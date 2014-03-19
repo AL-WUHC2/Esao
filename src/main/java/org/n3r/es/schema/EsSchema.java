@@ -8,12 +8,15 @@ public class EsSchema {
 
     private String source;
 
+    private String idFieldPath;
+
     public EsSchema() {}
 
-    public EsSchema(String index, String type, String source) {
-        this.index = index;
+    public EsSchema(String index, String type, String source, String idFieldPath) {
+        this.index = index.toLowerCase();
         this.type = type;
         this.source = source;
+        this.idFieldPath = idFieldPath;
     }
 
     public String getIndex() {
@@ -21,7 +24,7 @@ public class EsSchema {
     }
 
     public void setIndex(String index) {
-        this.index = index;
+        this.index = index.toLowerCase();
     }
 
     public String getType() {
@@ -38,6 +41,14 @@ public class EsSchema {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getIdFieldPath() {
+        return idFieldPath;
+    }
+
+    public void setIdFieldPath(String idFieldPath) {
+        this.idFieldPath = idFieldPath;
     }
 
 }

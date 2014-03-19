@@ -35,6 +35,7 @@ public class EsIndiceTest {
 
     @AfterClass
     public static void cleanup() {
+        indicesHelper.deleteIndex("noneIndex", "test01", "test02");
         client.close();
     }
 

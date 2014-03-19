@@ -81,4 +81,18 @@ public class EsDocumentTest {
         assertFalse(documentHelper.exists(DocumentBean.class, "1235"));
     }
 
+    @Test
+    public void testNoMapping() {
+        NoMapBean bean = new NoMapBean();
+        bean.setId("1234");
+        bean.setContent("there id no mapping before index.");
+        documentHelper.index(bean);
+        assertTrue(documentHelper.exists(NoMapBean.class, "1234"));
+        NoMapBean getResult = documentHelper.get(NoMapBean.class, "1234");
+        assertEquals("there id no mapping before index.", getResult.getContent());
+
+        documentHelper.delete(NoMapBean.class, "1234");
+        assertFalse(documentHelper.exists(NoMapBean.class, "1234"));
+    }
+
 }

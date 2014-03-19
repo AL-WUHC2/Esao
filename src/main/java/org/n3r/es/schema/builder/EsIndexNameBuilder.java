@@ -8,8 +8,8 @@ public class EsIndexNameBuilder {
 
     public EsIndexNameBuilder(Class<?> clazz) {
         indexName = clazz.isAnnotationPresent(EsIndexName.class)
-                ? clazz.getAnnotation(EsIndexName.class).value()
-                        : clazz.getSimpleName();
+                ? clazz.getAnnotation(EsIndexName.class).value().toLowerCase()
+                        : clazz.getSimpleName().toLowerCase();
     }
 
     public String indexName() {

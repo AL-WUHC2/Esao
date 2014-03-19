@@ -1,7 +1,12 @@
 package org.n3r.es.helper;
 
+import static org.n3r.core.lang.RStr.toStr;
+
 import java.nio.charset.Charset;
 import java.util.Map;
+
+import ognl.Ognl;
+import ognl.OgnlException;
 
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -12,6 +17,7 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.transport.TransportClient;
+import org.n3r.es.exception.EsaoRuntimeException;
 import org.n3r.es.schema.EsSchema;
 import org.n3r.es.schema.EsSchemaCache;
 import org.n3r.es.schema.builder.EsSchemaBuilder;
@@ -44,7 +50,8 @@ public class EsDocumentHelper {
 
     public IndexRequestBuilder prepareIndex(Object obj, String id) {
         EsSchema schema = new EsSchemaBuilder(obj).schema();
-        return prepareIndex(schema.getIndex(), schema.getType(), id, JSON.toJSONString(obj));
+        return prepareIndex(schema.getIndex(), schema.getType(),
+                toStr(id, fetchIdValue(obj)), JSON.toJSONString(obj));
     }
 
     public IndexResponse index(String index, String type, String source) {
@@ -62,7 +69,18 @@ public class EsDocumentHelper {
     // If Mapping specify _id field to extract the id from a different location
     // in the source document, @param id will cover it without change the source.
     public IndexRequestBuilder prepareIndex(String index, String type, String id, String source) {
-        return client.prepareIndex(index, type, id).setSource(source.getBytes(UTF8));
+        return client.prepareIndex(index.toLowerCase(), type, id).setSource(source.getBytes(UTF8));
+    }
+
+    // if schema specify @EsIdField field, fetch its value for index, otherwise return null.
+    private String fetchIdValue(Object obj) {
+        String path = new EsSchemaBuilder(obj).schema().getIdFieldPath();
+        if (path == null) return null;
+        try {
+            return toStr(Ognl.getValue(path, obj));
+        } catch (OgnlException e) {
+            throw new EsaoRuntimeException("Failed to fetchIdValue [" + obj + "]", e);
+        }
     }
 
 ////Get/////////////////////////////////////////////////////////////////////////
@@ -89,7 +107,7 @@ public class EsDocumentHelper {
     }
 
     public GetRequestBuilder prepareGet(String index, String type, String id) {
-        return client.prepareGet(index, type, id);
+        return client.prepareGet(index.toLowerCase(), type, id);
     }
 
     /*
@@ -124,7 +142,7 @@ public class EsDocumentHelper {
 
     // Get without source, just for check the document is exists or not.
     public GetRequestBuilder prepareExists(String index, String type, String id) {
-        return prepareGet(index, type, id).setFetchSource(false);
+        return prepareGet(index.toLowerCase(), type, id).setFetchSource(false);
     }
 
 ////Delete//////////////////////////////////////////////////////////////////////
@@ -143,7 +161,7 @@ public class EsDocumentHelper {
     }
 
     public DeleteRequestBuilder prepareDelete(String index, String type, String id) {
-        return client.prepareDelete(index, type, id);
+        return client.prepareDelete(index.toLowerCase(), type, id);
     }
 
 ////Update//////////////////////////////////////////////////////////////////////
@@ -180,7 +198,7 @@ public class EsDocumentHelper {
 
     // insert if not exists
     public UpdateRequestBuilder prepareUpdate(String index, String type, String id, String source) {
-        return client.prepareUpdate(index, type, id).setDoc(source).setDocAsUpsert(true);
+        return client.prepareUpdate(index.toLowerCase(), type, id).setDoc(source).setDocAsUpsert(true);
     }
 
 }

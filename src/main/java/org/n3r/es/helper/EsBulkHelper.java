@@ -77,6 +77,7 @@ public class EsBulkHelper {
 
     public BulkResponse execute() {
         BulkResponse response = bulkBuilder.execute().actionGet();
+        // clear is not auto.
         bulkBuilder.request().requests().clear();
         return response;
     }
