@@ -17,9 +17,9 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.transport.TransportClient;
+import org.n3r.es.cache.EsSchemaCache;
 import org.n3r.es.exception.EsaoRuntimeException;
 import org.n3r.es.schema.EsSchema;
-import org.n3r.es.schema.EsSchemaCache;
 import org.n3r.es.schema.builder.EsSchemaBuilder;
 
 import com.alibaba.fastjson.JSON;

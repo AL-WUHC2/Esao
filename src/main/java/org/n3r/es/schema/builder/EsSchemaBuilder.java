@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.n3r.es.cache.EsSchemaCache;
 import org.n3r.es.exception.EsaoRuntimeException;
 import org.n3r.es.schema.EsSchema;
-import org.n3r.es.schema.EsSchemaCache;
 
 public class EsSchemaBuilder {
 

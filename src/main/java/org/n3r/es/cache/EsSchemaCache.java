@@ -1,10 +1,11 @@
-package org.n3r.es.schema;
+package org.n3r.es.cache;
 
 import static org.n3r.core.collection.RMap.newHashMap;
 
 import java.util.Map;
 
 import org.n3r.core.collection.RMap;
+import org.n3r.es.schema.EsSchema;
 import org.n3r.es.schema.builder.EsClassPropsBuilder;
 import org.n3r.es.schema.builder.EsIdSettingBuilder;
 import org.n3r.es.schema.builder.EsIndexNameBuilder;
