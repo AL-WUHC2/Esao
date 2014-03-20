@@ -1,19 +1,19 @@
 package org.n3r.es.schema;
 
-import org.n3r.es.annotation.EsIndex;
-import org.n3r.es.annotation.EsIndexName;
-import org.n3r.es.annotation.EsTypeName;
-import org.n3r.es.enums.EsIndexType;
+import org.n3r.es.schema.anno.EsMapIndex;
+import org.n3r.es.schema.anno.EsMapIndexName;
+import org.n3r.es.schema.anno.EsMapTypeName;
+import org.n3r.es.schema.enums.EsIndexType;
 
-@EsIndexName("Nested")
-@EsTypeName("NestedBean")
+@EsMapIndexName("Nested")
+@EsMapTypeName("NestedBean")
 public class NestedBean {
 
     private SimpleBean simple;
 
     private SimpleAnnoBean simpleAnno;
 
-    @EsIndex(EsIndexType.NO)
+    @EsMapIndex(EsIndexType.NO)
     private String comment;
 
     public SimpleBean getSimple() {

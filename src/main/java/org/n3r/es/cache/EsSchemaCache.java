@@ -7,9 +7,9 @@ import java.util.Map;
 import org.n3r.core.collection.RMap;
 import org.n3r.es.schema.EsSchema;
 import org.n3r.es.schema.builder.EsClassPropsBuilder;
-import org.n3r.es.schema.builder.EsIdSettingBuilder;
-import org.n3r.es.schema.builder.EsIndexNameBuilder;
-import org.n3r.es.schema.builder.EsTypeNameBuilder;
+import org.n3r.es.schema.builder.EsMapIdSettingBuilder;
+import org.n3r.es.schema.builder.EsMapIndexNameBuilder;
+import org.n3r.es.schema.builder.EsMapTypeNameBuilder;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.cache.CacheBuilder;
@@ -27,11 +27,11 @@ public class EsSchemaCache {
                 new CacheLoader<Class<?>, EsSchema>() {
                     @Override
                     public EsSchema load(Class<?> key) throws Exception {
-                        String indexName = new EsIndexNameBuilder(key).indexName();
-                        String typeName = new EsTypeNameBuilder(key).typeName();
+                        String indexName = new EsMapIndexNameBuilder(key).indexName();
+                        String typeName = new EsMapTypeNameBuilder(key).typeName();
                         reflectMap.put(indexName + ":" + typeName, key);
 
-                        EsIdSettingBuilder idSetting = new EsIdSettingBuilder(key);
+                        EsMapIdSettingBuilder idSetting = new EsMapIdSettingBuilder(key);
                         Map<String, Object> typeMapping = RMap.<String, Object>of(
                                 "properties", new EsClassPropsBuilder(key).props(),
                                 "_id", idSetting.setting());

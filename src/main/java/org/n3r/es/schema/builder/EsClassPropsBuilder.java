@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.n3r.core.collection.RMap;
 import org.n3r.core.lang.RField;
-import org.n3r.es.annotation.EsTransient;
+import org.n3r.es.schema.anno.EsMapTransient;
 
 public class EsClassPropsBuilder {
 
@@ -15,7 +15,7 @@ public class EsClassPropsBuilder {
     public EsClassPropsBuilder(Class<?> clazz) {
         Field[] fields = clazz.getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
-            if (fields[i].isAnnotationPresent(EsTransient.class)) continue;
+            if (fields[i].isAnnotationPresent(EsMapTransient.class)) continue;
             if (RField.isNotNormal(fields[i])) continue;
 
             classProps.put(fields[i].getName(), new EsFieldSettingBuilder(fields[i]).setting());

@@ -1,4 +1,4 @@
-package org.n3r.es.annotation;
+package org.n3r.es.source.anno;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,8 +7,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface EsIndexName {
+public @interface EsBindTo {
 
-    String value();
+    Class<?> value();
 
 }

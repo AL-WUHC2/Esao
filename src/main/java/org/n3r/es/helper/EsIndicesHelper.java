@@ -10,6 +10,7 @@ import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequestBui
 import org.elasticsearch.action.admin.indices.mapping.delete.DeleteMappingRequestBuilder;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequestBuilder;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequestBuilder;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequestBuilder;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.client.transport.TransportClient;
 import org.n3r.es.exception.EsaoRuntimeException;
@@ -101,6 +102,36 @@ public class EsIndicesHelper {
 
     public DeleteIndexRequestBuilder prepareDeleteIndex(String... indexes) {
         return client.prepareDelete(lowerCase(indexes));
+    }
+
+////Refresh Index///////////////////////////////////////////////////////////////
+
+    public void refreshIndex(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
+        refreshIndex(schema.getIndex());
+    }
+
+    public RefreshRequestBuilder prepareRefreshIndex(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
+        return prepareRefreshIndex(schema.getIndex());
+    }
+
+    public void refreshIndex(String... indexes) {
+        for (String index : indexes) {
+            refreshIndex(index);
+        }
+    }
+
+    public void refreshIndex(String index) {
+        if (indicesExists(index)) refreshIndexNoCheck(index);
+    }
+
+    public void refreshIndexNoCheck(String index) {
+        prepareRefreshIndex(index).execute();
+    }
+
+    public RefreshRequestBuilder prepareRefreshIndex(String... indexes) {
+        return client.prepareRefresh(lowerCase(indexes));
     }
 
 ////Types Exists////////////////////////////////////////////////////////////////

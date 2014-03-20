@@ -10,17 +10,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.n3r.core.lang.RField;
-import org.n3r.es.annotation.EsIdField;
-import org.n3r.es.annotation.EsIdSetting;
-import org.n3r.es.annotation.EsTransient;
+import org.n3r.es.schema.anno.EsMapId;
+import org.n3r.es.schema.anno.EsMapIdSetting;
+import org.n3r.es.schema.anno.EsMapTransient;
 
-public class EsIdSettingBuilder {
+public class EsMapIdSettingBuilder {
 
     private Map<String, Object> idSetting = new HashMap<String, Object>();
 
-    public EsIdSettingBuilder(Class<?> clazz) {
-        if (clazz.isAnnotationPresent(EsIdSetting.class)) {
-            EsIdSetting setting = clazz.getAnnotation(EsIdSetting.class);
+    public EsMapIdSettingBuilder(Class<?> clazz) {
+        if (clazz.isAnnotationPresent(EsMapIdSetting.class)) {
+            EsMapIdSetting setting = clazz.getAnnotation(EsMapIdSetting.class);
             idSetting.put("index", setting.index().describe());
             idSetting.put("store", setting.store());
         }
@@ -39,11 +39,11 @@ public class EsIdSettingBuilder {
     private String buildIdFieldPath(Class<?> clazz) {
         Field[] fields = clazz.getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
-            if (fields[i].isAnnotationPresent(EsTransient.class)) continue;
+            if (fields[i].isAnnotationPresent(EsMapTransient.class)) continue;
             if (RField.isNotNormal(fields[i])) continue;
 
             String fieldName = fields[i].getName();
-            if (fields[i].isAnnotationPresent(EsIdField.class) ||
+            if (fields[i].isAnnotationPresent(EsMapId.class) ||
                     fieldName.equalsIgnoreCase("id")) return fieldName;
 
             Class<?> fieldType = fields[i].getType();

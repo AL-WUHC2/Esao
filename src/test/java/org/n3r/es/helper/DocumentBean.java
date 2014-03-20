@@ -1,14 +1,14 @@
 package org.n3r.es.helper;
 
-import org.n3r.es.annotation.EsIdField;
-import org.n3r.es.annotation.EsIndexName;
-import org.n3r.es.annotation.EsTypeName;
+import org.n3r.es.schema.anno.EsMapId;
+import org.n3r.es.schema.anno.EsMapIndexName;
+import org.n3r.es.schema.anno.EsMapTypeName;
 
-@EsIndexName("document")
-@EsTypeName("docType")
+@EsMapIndexName("document")
+@EsMapTypeName("docType")
 public class DocumentBean {
 
-    @EsIdField
+    @EsMapId
     private String docId;
 
     private String docContent;

@@ -8,13 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.n3r.core.lang.RType;
-import org.n3r.es.annotation.EsDateFormat;
-import org.n3r.es.annotation.EsField;
-import org.n3r.es.annotation.EsIndex;
-import org.n3r.es.annotation.EsIndexAlias;
-import org.n3r.es.annotation.EsStore;
-import org.n3r.es.enums.EsFieldType;
 import org.n3r.es.exception.EsaoRuntimeException;
+import org.n3r.es.schema.anno.EsMapDateFormat;
+import org.n3r.es.schema.anno.EsMapFieldType;
+import org.n3r.es.schema.anno.EsMapIndex;
+import org.n3r.es.schema.anno.EsMapStore;
+import org.n3r.es.schema.enums.EsFieldType;
 
 public class EsFieldSettingBuilder {
 
@@ -38,34 +37,28 @@ public class EsFieldSettingBuilder {
         return fieldSetting;
     }
 
-    public EsFieldSettingBuilder buildFieldIndexAlias() {
-        if (field.isAnnotationPresent(EsIndexAlias.class))
-            fieldSetting.put("index_name", field.getAnnotation(EsIndexAlias.class).value());
-        return this;
-    }
-
     public EsFieldSettingBuilder buildFieldIndex() {
-        if (field.isAnnotationPresent(EsIndex.class))
-            fieldSetting.put("index", field.getAnnotation(EsIndex.class).value().describe());
+        if (field.isAnnotationPresent(EsMapIndex.class))
+            fieldSetting.put("index", field.getAnnotation(EsMapIndex.class).value().describe());
         return this;
     }
 
     public EsFieldSettingBuilder buildFieldStore() {
-        if (field.isAnnotationPresent(EsStore.class))
-            fieldSetting.put("store", field.getAnnotation(EsStore.class).value());
+        if (field.isAnnotationPresent(EsMapStore.class))
+            fieldSetting.put("store", field.getAnnotation(EsMapStore.class).value());
         return this;
     }
 
     public EsFieldSettingBuilder buildFieldType() {
         // EsDateFormat Annotation -> type: date
-        if (field.isAnnotationPresent(EsDateFormat.class)) {
-            fieldSetting.put("format", field.getAnnotation(EsDateFormat.class).value());
+        if (field.isAnnotationPresent(EsMapDateFormat.class)) {
+            fieldSetting.put("format", field.getAnnotation(EsMapDateFormat.class).value());
             fieldSetting.put("type", EsFieldType.DATE.describe());
             return this;
         }
 
-        if (field.isAnnotationPresent(EsField.class)) {
-            fieldSetting.put("type", field.getAnnotation(EsField.class).value().describe());
+        if (field.isAnnotationPresent(EsMapFieldType.class)) {
+            fieldSetting.put("type", field.getAnnotation(EsMapFieldType.class).value().describe());
         } else {
             Class<?> fieldType = fieldActualType(field);
             String typeDesc = EsFieldType.typeDescOfClass(fieldType);

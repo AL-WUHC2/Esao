@@ -1,4 +1,4 @@
-package org.n3r.es.enums;
+package org.n3r.es.schema.enums;
 
 public enum EsIndexType {
 
