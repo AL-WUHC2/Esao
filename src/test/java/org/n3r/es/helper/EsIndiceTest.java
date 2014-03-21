@@ -62,7 +62,7 @@ public class EsIndiceTest {
                 .field("noneType", properties)
                 .endObject();
         assertTrue(indicesHelper.putMapping("noneIndex", "noneType", noneType.string()));
-        assertEquals(properties, indicesHelper.getMapping("noneIndex", "noneType"));
+        assertEquals(noneType.string(), indicesHelper.getMapping("noneIndex", "noneType"));
 
         assertTrue(indicesHelper.typeExists("noneIndex", "noneType"));
         assertTrue(indicesHelper.putMapping("noneIndex", "noneType", noneType.string()));

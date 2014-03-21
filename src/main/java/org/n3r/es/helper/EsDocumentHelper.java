@@ -11,7 +11,6 @@ import ognl.OgnlException;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequestBuilder;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.update.UpdateRequestBuilder;
@@ -21,6 +20,8 @@ import org.n3r.es.cache.EsSchemaCache;
 import org.n3r.es.exception.EsaoRuntimeException;
 import org.n3r.es.schema.EsSchema;
 import org.n3r.es.schema.builder.EsSchemaBuilder;
+import org.n3r.es.source.from.BeanFromSource;
+import org.n3r.es.source.to.BeanToSource;
 
 import com.alibaba.fastjson.JSON;
 
@@ -50,8 +51,9 @@ public class EsDocumentHelper {
 
     public IndexRequestBuilder prepareIndex(Object obj, String id) {
         EsSchema schema = new EsSchemaBuilder(obj).schema();
+        Object source = new BeanToSource().toSource(obj);
         return prepareIndex(schema.getIndex(), schema.getType(),
-                toStr(id, fetchIdValue(obj)), JSON.toJSONString(obj));
+                toStr(id, fetchIdValue(obj)), JSON.toJSONString(source));
     }
 
     public IndexResponse index(String index, String type, String source) {
@@ -86,11 +88,13 @@ public class EsDocumentHelper {
 ////Get/////////////////////////////////////////////////////////////////////////
 
     public <T> T get(Class<T> clazz, String id) {
-        return (T) parseRawGetResponse(getRaw(clazz, id), clazz);
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
+        return (T) parseRawGetResponse(schema.getIndex(),
+                schema.getType(), getRaw(clazz, id), clazz);
     }
 
-    public GetResponse getRaw(Class<?> clazz, String id) {
-        return prepareGet(clazz, id).execute().actionGet();
+    public Map<String, Object> getRaw(Class<?> clazz, String id) {
+        return prepareGet(clazz, id).execute().actionGet().getSource();
     }
 
     public GetRequestBuilder prepareGet(Class<?> clazz, String id) {
@@ -99,11 +103,11 @@ public class EsDocumentHelper {
     }
 
     public Object get(String index, String type, String id) {
-        return parseRawGetResponse(getRaw(index, type, id), null);
+        return parseRawGetResponse(index, type, getRaw(index, type, id), null);
     }
 
-    public GetResponse getRaw(String index, String type, String id) {
-        return prepareGet(index, type, id).execute().actionGet();
+    public Map<String, Object> getRaw(String index, String type, String id) {
+        return prepareGet(index, type, id).execute().actionGet().getSource();
     }
 
     public GetRequestBuilder prepareGet(String index, String type, String id) {
@@ -114,15 +118,15 @@ public class EsDocumentHelper {
      * Reflect response source JSON to bean.
      * Type uncached return source JSON.
      */
-    private Object parseRawGetResponse(GetResponse response, Class<?> clazz) {
-        if (!response.isExists() || response.isSourceEmpty()) return null;
+    private Object parseRawGetResponse(String index, String type,
+            Map<String, Object> source, Class<?> clazz) {
+        if (source == null) return null;
 
-        String source = response.getSourceAsString();
         Class<?> reflectClazz = clazz != null ? clazz :
-            EsSchemaCache.reflect(response.getIndex() + ":" + response.getType());
+            EsSchemaCache.reflect(index + ":" + type);
         if (reflectClazz == null) return source;
 
-        return JSON.parseObject(source, reflectClazz);
+        return new BeanFromSource().fromSource(source, reflectClazz);
     }
 
 ////Exists//////////////////////////////////////////////////////////////////////

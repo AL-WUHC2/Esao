@@ -1,11 +1,16 @@
-package org.n3r.es.source;
+package org.n3r.es.helper;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.n3r.es.schema.anno.EsMapId;
+import org.n3r.es.schema.anno.EsMapIndexName;
+import org.n3r.es.schema.anno.EsMapTypeName;
+import org.n3r.es.source.SubBean;
 
+@EsMapIndexName("convert")
+@EsMapTypeName("convert")
 public class ConvertBean {
 
     @EsMapId
@@ -21,7 +26,7 @@ public class ConvertBean {
 
     private List<SubBean> field06;
 
-    private Map<KeyBean, ValueBean> field07;
+    private Map<String, SubBean> field07;
 
     private SubBean field08;
 
@@ -73,11 +78,11 @@ public class ConvertBean {
         this.field06 = field06;
     }
 
-    public Map<KeyBean, ValueBean> getField07() {
+    public Map<String, SubBean> getField07() {
         return field07;
     }
 
-    public void setField07(Map<KeyBean, ValueBean> field07) {
+    public void setField07(Map<String, SubBean> field07) {
         this.field07 = field07;
     }
 

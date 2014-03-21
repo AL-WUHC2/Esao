@@ -1,8 +1,5 @@
 package org.n3r.es.helper;
 
-import java.io.IOException;
-import java.util.Map;
-
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
@@ -13,7 +10,6 @@ import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequestBuild
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequestBuilder;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.client.transport.TransportClient;
-import org.n3r.es.exception.EsaoRuntimeException;
 import org.n3r.es.schema.EsSchema;
 import org.n3r.es.schema.builder.EsSchemaBuilder;
 
@@ -210,7 +206,7 @@ public class EsIndicesHelper {
 
 ////Get Mapping/////////////////////////////////////////////////////////////////
 
-    public Map<String, Object> getMapping(Class<?> clazz) {
+    public String getMapping(Class<?> clazz) {
         EsSchema schema = new EsSchemaBuilder(clazz).schema();
         return getMapping(schema.getIndex(), schema.getType());
     }
@@ -220,20 +216,15 @@ public class EsIndicesHelper {
         return prepareGetMapping(schema.getIndex(), schema.getType());
     }
 
-    public Map<String, Object> getMapping(String index, String type) {
+    public String getMapping(String index, String type) {
         if (!indicesExists(index)) return null;
         if (!typeExistsNoCheck(index, type)) return null;
         return getMappingNoCheck(index, type);
     }
 
-    public Map<String, Object> getMappingNoCheck(String index, String type) {
-        try {
-            return prepareGetMapping(index, type).execute().actionGet().getMappings()
-                    .get(index.toLowerCase()).get(type).sourceAsMap();
-        } catch (IOException e) {
-            throw new EsaoRuntimeException("GetMapping for index:"
-                    + index.toLowerCase() + " type:" + type + " Exception!", e);
-        }
+    public String getMappingNoCheck(String index, String type) {
+        return prepareGetMapping(index, type).execute().actionGet().getMappings()
+                .get(index.toLowerCase()).get(type).source().toString();
     }
 
     public GetMappingsRequestBuilder prepareGetMapping(String index, String type) {
