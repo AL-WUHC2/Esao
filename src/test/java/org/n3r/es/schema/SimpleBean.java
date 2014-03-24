@@ -2,7 +2,9 @@ package org.n3r.es.schema;
 
 import java.util.Date;
 
-public class SimpleBean {
+import org.n3r.core.lang.RBaseBean;
+
+public class SimpleBean extends RBaseBean {
 
     private int simpleInteger;
 

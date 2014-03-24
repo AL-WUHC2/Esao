@@ -2,39 +2,38 @@ package org.n3r.es.schema;
 
 import java.util.Date;
 
-import org.n3r.es.annotation.EsDateFormat;
-import org.n3r.es.annotation.EsField;
-import org.n3r.es.annotation.EsIdField;
-import org.n3r.es.annotation.EsIdSetting;
-import org.n3r.es.annotation.EsIndex;
-import org.n3r.es.annotation.EsIndexAlias;
-import org.n3r.es.annotation.EsIndexName;
-import org.n3r.es.annotation.EsStore;
-import org.n3r.es.annotation.EsTransient;
-import org.n3r.es.annotation.EsTypeName;
-import org.n3r.es.enums.EsFieldType;
-import org.n3r.es.enums.EsIndexType;
+import org.n3r.core.lang.RBaseBean;
+import org.n3r.es.schema.anno.EsMapDateFormat;
+import org.n3r.es.schema.anno.EsMapFieldType;
+import org.n3r.es.schema.anno.EsMapId;
+import org.n3r.es.schema.anno.EsMapIdSetting;
+import org.n3r.es.schema.anno.EsMapIndex;
+import org.n3r.es.schema.anno.EsMapIndexName;
+import org.n3r.es.schema.anno.EsMapStore;
+import org.n3r.es.schema.anno.EsMapTransient;
+import org.n3r.es.schema.anno.EsMapTypeName;
+import org.n3r.es.schema.enums.EsFieldType;
+import org.n3r.es.schema.enums.EsIndexType;
 
-@EsIndexName("simple")
-@EsTypeName("simpleType")
-@EsIdSetting(index = EsIndexType.NOT_ANALYZED, store = true)
-public class SimpleAnnoBean {
+@EsMapIndexName("simple")
+@EsMapTypeName("simpleType")
+@EsMapIdSetting(index = EsIndexType.NOT_ANALYZED, store = true)
+public class SimpleAnnoBean extends RBaseBean {
 
-    @EsIdField
-    @EsIndexAlias("intField")
+    @EsMapId
     private int simpleInteger;
 
-    @EsIndex(EsIndexType.NO)
+    @EsMapIndex(EsIndexType.NO)
     private String simpleString;
 
-    @EsField(EsFieldType.STRING)
-    @EsStore(true)
+    @EsMapFieldType(EsFieldType.STRING)
+    @EsMapStore(true)
     private Date originalDate;
 
-    @EsDateFormat("yyyy-MM-dd")
+    @EsMapDateFormat("yyyy:MM:dd")
     private String stringDate;
 
-    @EsTransient
+    @EsMapTransient
     private String transientField;
 
     public int getSimpleInteger() {

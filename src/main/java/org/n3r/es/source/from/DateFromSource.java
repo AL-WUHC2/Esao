@@ -1,11 +1,13 @@
 package org.n3r.es.source.from;
 
+import static org.n3r.core.lang.RStr.isEmpty;
 import static org.n3r.core.lang.RStr.toStr;
 
 import java.util.Date;
 
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
+import org.joda.time.format.ISODateTimeFormat;
 import org.n3r.es.source.FromSourceConverter;
 import org.n3r.es.source.anno.EsBindTo;
 import org.n3r.es.source.base.DateSourceConverter;
@@ -15,10 +17,13 @@ public class DateFromSource extends DateSourceConverter implements FromSourceCon
 
     @Override
     public <T> T fromSource(Object source, Class<T> clazz) {
-        String dateFormat = getDateFormat();
-        DateTimeFormatter formatter = new DateTimeFormatterBuilder().
-                appendPattern(dateFormat).toFormatter();
-        return (T) formatter.parseDateTime(toStr(source)).toDate();
+        return (T) dateFormatParser().parseDateTime(toStr(source)).toDate();
+    }
+
+    protected DateTimeFormatter dateFormatParser() {
+        String pattern = toStr(getOption("dateFormat"));
+        return isEmpty(pattern) ? ISODateTimeFormat.dateOptionalTimeParser()
+                : new DateTimeFormatterBuilder().appendPattern(pattern).toFormatter();
     }
 
 }

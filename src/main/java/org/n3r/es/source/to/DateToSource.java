@@ -1,5 +1,8 @@
 package org.n3r.es.source.to;
 
+import static org.n3r.core.lang.RStr.toStr;
+import static org.n3r.es.EsConstant.DEFAULT_DATE_FORMAT;
+
 import java.util.Date;
 
 import org.joda.time.DateTime;
@@ -12,7 +15,11 @@ public class DateToSource extends DateSourceConverter implements ToSourceConvert
 
     @Override
     public String toSource(Object obj) {
-        return new DateTime(obj).toString(getDateFormat());
+        return new DateTime(obj).toString(dateFormatPattern());
+    }
+
+    private String dateFormatPattern() {
+        return toStr(getOption("dateFormat"), DEFAULT_DATE_FORMAT);
     }
 
 }
