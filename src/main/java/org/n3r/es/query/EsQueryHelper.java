@@ -14,15 +14,18 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.n3r.es.cache.EsSchemaCache;
 import org.n3r.es.exception.EsaoRuntimeException;
+import org.n3r.es.schema.EsSchema;
+import org.n3r.es.schema.builder.EsSchemaBuilder;
 
 public class EsQueryHelper {
 
     public static final int DEFAULT_SIZE = 10;
 
-    private String[] indexes;
+    private String index;
 
-    private String[] types;
+    private String type;
 
     private String[] includes;
 
@@ -36,17 +39,21 @@ public class EsQueryHelper {
 
     private BoolQueryBuilder query = new BoolQueryBuilder();
 
-    private EsRsConverter rsConverter = new EsRsConverter();
+    private EsSourceConverter rsConverter = new EsSourceConverter();
 
 ////Multiple Indexes/Types//////////////////////////////////////////////////////
 
-    public EsQueryHelper onIndexes(String... indexes) {
-        this.indexes = indexes;
-        return this;
+    public EsQueryHelper on(Class<?> clazz) {
+        EsSchema schema = new EsSchemaBuilder(clazz).schema();
+        rsConverter.setReturnType(clazz);
+        return on(schema.getIndex(), schema.getType());
     }
 
-    public EsQueryHelper onTypes(String... types) {
-        this.types = types;
+    public EsQueryHelper on(String index, String type) {
+        this.index = index;
+        this.type = type;
+        rsConverter.setReturnType(EsSchemaCache.
+                reflect(index + ":" + type));
         return this;
     }
 
@@ -326,20 +333,12 @@ public class EsQueryHelper {
         return this;
     }
 
-////Execute/////////////////////////////////////////////////////////////////////
-
-    private SearchRequestBuilder buildRequest(TransportClient client) {
-        SearchRequestBuilder request = new SearchRequestBuilder(client);
-        request.setIndices(indexes).setTypes(types);
-        request.setFetchSource(includes, excludes);
-        request.setFrom(page.calcStartIndex());
-        request.setSize(page.getSize());
-        if (query.hasClauses()) request.setQuery(query);
-        for (SortBuilder sort : sorts) {
-            request.addSort(sort);
-        }
-        return request;
+    public EsQueryHelper returnSourceMap() {
+        rsConverter.setReturnType(null);
+        return this;
     }
+
+////Execute/////////////////////////////////////////////////////////////////////
 
     public <T> T execute(TransportClient client) {
         if (page.getTotal() == 0) page.setTotal(countTotalRows(client));
@@ -350,9 +349,22 @@ public class EsQueryHelper {
     }
 
     public int countTotalRows(TransportClient client) {
-        long count = new CountRequestBuilder(client).setIndices(indexes)
-                .setTypes(types).execute().actionGet().getCount();
+        long count = new CountRequestBuilder(client).setIndices(index)
+                .setTypes(type).execute().actionGet().getCount();
         return count > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) count;
+    }
+
+    private SearchRequestBuilder buildRequest(TransportClient client) {
+        SearchRequestBuilder request = new SearchRequestBuilder(client);
+        request.setIndices(index).setTypes(type);
+        request.setFetchSource(includes, excludes);
+        request.setFrom(page.calcStartIndex());
+        request.setSize(page.getSize());
+        if (query.hasClauses()) request.setQuery(query);
+        for (SortBuilder sort : sorts) {
+            request.addSort(sort);
+        }
+        return request;
     }
 
 }

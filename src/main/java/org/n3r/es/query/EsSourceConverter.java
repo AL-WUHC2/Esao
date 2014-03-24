@@ -6,15 +6,15 @@ import java.util.List;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.n3r.es.cache.EsMapperCache;
-import org.n3r.es.query.result.EsRsMapper;
+import org.n3r.es.query.result.EsSourceMapper;
 
-public class EsRsConverter {
+public class EsSourceConverter {
 
     private int rsSize = EsQueryHelper.DEFAULT_SIZE;
 
     private Class<?> returnType;
 
-    private EsRsMapper mapper;
+    private EsSourceMapper mapper;
 
     public Object convert(SearchHits searchHits) {
         mapper = EsMapperCache.get(returnType);
@@ -24,7 +24,7 @@ public class EsRsConverter {
 
     private Object convertSingle(SearchHits searchHits) {
         if (searchHits.totalHits() == 0) return null;
-        return mapper.mapSearchHit(searchHits.getAt(0));
+        return mapper.mapSource(searchHits.getAt(0).getSource());
     }
 
     private Object convertList(SearchHits searchHits) {
@@ -32,7 +32,7 @@ public class EsRsConverter {
 
         SearchHit[] hits = searchHits.getHits();
         for (int i = 0; i < hits.length; i++) {
-            Object hitObject = mapper.mapSearchHit(hits[i]);
+            Object hitObject = mapper.mapSource(hits[i].getSource());
             if (hitObject != null) result.add(hitObject);
         }
 

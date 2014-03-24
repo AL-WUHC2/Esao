@@ -18,9 +18,9 @@ import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.n3r.es.cache.EsSchemaCache;
 import org.n3r.es.exception.EsaoRuntimeException;
+import org.n3r.es.query.result.EsBeanSourceMapper;
 import org.n3r.es.schema.EsSchema;
 import org.n3r.es.schema.builder.EsSchemaBuilder;
-import org.n3r.es.source.from.BeanFromSource;
 import org.n3r.es.source.to.BeanToSource;
 
 import com.alibaba.fastjson.JSON;
@@ -126,7 +126,7 @@ public class EsDocumentHelper {
             EsSchemaCache.reflect(index + ":" + type);
         if (reflectClazz == null) return source;
 
-        return new BeanFromSource().fromSource(source, reflectClazz);
+        return new EsBeanSourceMapper(reflectClazz).mapSource(source);
     }
 
 ////Exists//////////////////////////////////////////////////////////////////////
@@ -180,7 +180,8 @@ public class EsDocumentHelper {
 
     public UpdateRequestBuilder prepareUpdate(Object obj, String id) {
         EsSchema schema = new EsSchemaBuilder(obj).schema();
-        return prepareUpdate(schema.getIndex(), schema.getType(), id, JSON.toJSONString(obj));
+        Object source = new BeanToSource().toSource(obj);
+        return prepareUpdate(schema.getIndex(), schema.getType(), id, JSON.toJSONString(source));
     }
 
     public UpdateRequestBuilder prepareUpdate(Class<?> clazz, String id, Map source) {

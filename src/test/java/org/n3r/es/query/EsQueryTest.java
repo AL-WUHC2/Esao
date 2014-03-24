@@ -62,12 +62,12 @@ public class EsQueryTest {
 
         EsQueryPage page = new EsQueryPage();
         page.setCurrent(3);
-        EsQueryHelper query = new EsQueryHelper().onIndexes("document")
-                .onTypes("docType").descBy("docId").ascBy("docContent");
+        EsQueryHelper query = new EsQueryHelper().on("document", "docType")
+                .descBy("docId").ascBy("docContent");
         query.where("docContent").mustMoreThan("90");
         while (query.countTotalRows(client) != 100) {}
 
-        List<Map> result = query.execute(client);
+        List<Map> result = query.returnSourceMap().execute(client);
         Map<String, String> exp01 = RMap.of("docId", "19", "docContent", "95");
         Map<String, String> exp02 = RMap.of("docId", "18", "docContent", "90");
         assertEquals(2, result.size());
@@ -89,11 +89,11 @@ public class EsQueryTest {
         bulkHelper.index(bean).execute();
         indicesHelper.refreshIndex(SimpleBean.class);
 
-        EsQueryHelper query = new EsQueryHelper().onIndexes("simplebean")
-                .onTypes("org.n3r.es.schema.SimpleBean").orderBy("simpleDate");
+        EsQueryHelper query = new EsQueryHelper().on("simplebean",
+                "org.n3r.es.schema.SimpleBean").orderBy("simpleDate");
         while (query.countTotalRows(client) == 0) {}
 
-        List<SimpleBean> result = query.returnType(SimpleBean.class).execute(client);
+        List<SimpleBean> result = query.execute(client);
         assertEquals(2, result.size());
         assertEquals(new DateTime("2014-03-18").toDate(), result.get(0).getSimpleDate());
         assertEquals(bean, result.get(1));
@@ -111,11 +111,10 @@ public class EsQueryTest {
         bulkHelper.index(bean).execute();
         indicesHelper.refreshIndex(SimpleAnnoBean.class);
 
-        EsQueryHelper query = new EsQueryHelper().onIndexes("simple")
-                .onTypes("simpleType");
+        EsQueryHelper query = new EsQueryHelper().on("simple", "simpleType");
         while (query.countTotalRows(client) != 1) {}
 
-        SimpleAnnoBean result = query.returnType(SimpleAnnoBean.class).execute(client);
+        SimpleAnnoBean result = query.execute(client);
         assertEquals(bean, result);
 
         new EsIndicesHelper(client).deleteIndex(SimpleAnnoBean.class);
